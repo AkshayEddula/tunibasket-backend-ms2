@@ -16,10 +16,12 @@ connectDB()
     const categoryRoutes = require("./routes/category");
     const subCategoryRoutes = require("./routes/subcategory");
     const productRoutes = require("./routes/product");
+    const storeRoutes = require("./routes/store");
 
     app.use("/api/categories", categoryRoutes);
     app.use("/api/subcategories", subCategoryRoutes);
     app.use("/api/products", productRoutes);
+    app.use("/api/stores", storeRoutes);
 
     // Start server
     const PORT = process.env.PORT || 3000;

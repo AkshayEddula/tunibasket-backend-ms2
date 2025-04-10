@@ -25,6 +25,11 @@ const productSchema = new mongoose.Schema({
     ref: "SubCategory",
     required: true,
   },
+  store: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+    required: true,
+  },
   weight: {
     type: String,
     required: true,
@@ -53,6 +58,22 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  stock: {
+    current: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    minimum: {
+      type: Number,
+      required: true,
+      default: 5,
+    },
+    lastUpdated: {
+      type: Date,
+      default: Date.now,
+    },
+  },
   isActive: {
     type: Boolean,
     default: true,
@@ -66,5 +87,24 @@ const productSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// Method to update stock
+productSchema.methods.updateStock = async function (quantity) {
+  if (this.stock.current + quantity < 0) {
+    throw new Error("Insufficient stock");
+  }
+  this.stock.current += quantity;
+  this.stock.lastUpdated = new Date();
+  return this.save();
+};
+
+// Static method to check stock availability
+productSchema.statics.checkStock = async function (productId, quantity) {
+  const product = await this.findById(productId);
+  if (!product) {
+    throw new Error("Product not found");
+  }
+  return product.stock.current >= quantity;
+};
 
 module.exports = mongoose.model("Product", productSchema);
